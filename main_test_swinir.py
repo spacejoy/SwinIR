@@ -28,6 +28,7 @@ def main():
     parser.add_argument('--folder_gt', type=str, default=None, help='input ground-truth test image folder')
     parser.add_argument('--tile', type=int, default=None, help='Tile size, None for no tile during testing (testing as a whole)')
     parser.add_argument('--tile_overlap', type=int, default=32, help='Overlapping of different tiles')
+    parser.add_argument('--save_dir', type=str, default=None, help='Output directory for upscaled images')
     args = parser.parse_args()
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -79,7 +80,7 @@ def main():
         if output.ndim == 3:
             output = np.transpose(output[[2, 1, 0], :, :], (1, 2, 0))  # CHW-RGB to HCW-BGR
         output = (output * 255.0).round().astype(np.uint8)  # float32 to uint8
-        cv2.imwrite(f'{save_dir}/{imgname}_SwinIR.png', output)
+        cv2.imwrite(f'{save_dir}/{imgname}_x{args.scale}.jpg', output)
 
         # evaluate psnr/ssim/psnr_b
         if img_gt is not None:
@@ -223,6 +224,8 @@ def setup(args):
         border = 0
         window_size = 7
 
+    if args.save_dir != None:
+        save_dir = args.save_dir
     return folder, save_dir, border, window_size
 
 
